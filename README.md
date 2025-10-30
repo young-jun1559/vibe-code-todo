@@ -4,9 +4,9 @@ Firebase Realtime Database를 활용한 실시간 동기화 할일 관리 애플
 
 ## 🌐 Live Demo
 
-**[🚀 앱 실행하기](https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app)**
+**[🚀 앱 실행하기](https://minsu-gnd-todo-app.vercel.app)**
 
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://minsu-gnd-todo-app.vercel.app)
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 
 ## ✨ 주요 기능

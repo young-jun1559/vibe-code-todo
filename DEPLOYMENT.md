@@ -10,10 +10,15 @@
 
 ### Production (프로덕션)
 ```
-https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app
+https://minsu-gnd-todo-app.vercel.app
 ```
 
-👉 **[앱 열기](https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app)**
+👉 **[앱 열기](https://minsu-gnd-todo-app.vercel.app)**
+
+### 대체 URL
+```
+https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app
+```
 
 ### Vercel Dashboard
 ```
