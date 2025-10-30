@@ -2,6 +2,13 @@
 
 Firebase Realtime Database를 활용한 실시간 동기화 할일 관리 애플리케이션입니다.
 
+## 🌐 Live Demo
+
+**[🚀 앱 실행하기](https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app)**
+
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vibe-code-todo-o7zh5cxq2-young-jun1559s-projects.vercel.app)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
+
 ## ✨ 주요 기능
 
 - ➕ **할일 추가**: 새로운 할일을 Firebase에 저장
