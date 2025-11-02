@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>백엔드 API 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            width: 300px;
+        }
+        pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 백엔드 API 테스트</h1>
+        
+        <div id="connectionStatus" class="status">연결 테스트 중...</div>
+        
+        <div class="test-section">
+            <h3>📡 연결 정보</h3>
+            <p><strong>API URL:</strong> <code id="apiUrl">http://localhost:5000/api/todos</code></p>
+            <button class="btn-primary" onclick="testConnection()">연결 테스트</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📥 GET - 모든 할일 조회</h3>
+            <button class="btn-success" onclick="getAllTodos()">GET /api/todos</button>
+            <button class="btn-success" onclick="getStats()">GET /api/todos/stats</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>➕ POST - 할일 추가</h3>
+            <input type="text" id="newTodoText" placeholder="할일 입력..." value="테스트 할일">
+            <button class="btn-primary" onclick="createTodo()">POST /api/todos</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>✏️ PUT - 할일 수정</h3>
+            <input type="text" id="updateTodoId" placeholder="ID" value="1">
+            <input type="text" id="updateTodoText" placeholder="새로운 내용" value="수정된 할일">
+            <button class="btn-warning" onclick="updateTodo()">PUT /api/todos/:id</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🗑️ DELETE - 할일 삭제</h3>
+            <input type="text" id="deleteTodoId" placeholder="ID" value="1">
+            <button class="btn-danger" onclick="deleteTodo()">DELETE /api/todos/:id</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📄 응답 결과</h3>
+            <pre id="response">여기에 API 응답이 표시됩니다...</pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api/todos';
+        
+        function showResponse(data) {
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+        
+        function showError(error) {
+            document.getElementById('response').textContent = `❌ 오류:\n${error.message}`;
+        }
+        
+        async function testConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            try {
+                const response = await fetch(API_BASE_URL);
+                if (response.ok) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = '✅ 백엔드 서버 연결 성공! (localhost:5000)';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ 백엔드 서버 연결 실패!\n백엔드 서버가 실행 중인지 확인하세요.\n${error.message}`;
+            }
+        }
+        
+        async function getAllTodos() {
+            try {
+                console.log('GET /api/todos');
+                const response = await fetch(API_BASE_URL);
+                const data = await response.json();
+                showResponse(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+        
+        async function getStats() {
+            try {
+                console.log('GET /api/todos/stats');
+                const response = await fetch(`${API_BASE_URL}/stats`);
+                const data = await response.json();
+                showResponse(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+        
+        async function createTodo() {
+            try {
+                const text = document.getElementById('newTodoText').value;
+                console.log('POST /api/todos');
+                
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        completed: false
+                    })
+                });
+                
+                const data = await response.json();
+                showResponse(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+        
+        async function updateTodo() {
+            try {
+                const id = document.getElementById('updateTodoId').value;
+                const text = document.getElementById('updateTodoText').value;
+                console.log(`PUT /api/todos/${id}`);
+                
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+                
+                const data = await response.json();
+                showResponse(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+        
+        async function deleteTodo() {
+            try {
+                const id = document.getElementById('deleteTodoId').value;
+                console.log(`DELETE /api/todos/${id}`);
+                
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                showResponse(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+        
+        // 페이지 로드 시 연결 테스트
+        testConnection();
+    </script>
+</body>
+</html>
+

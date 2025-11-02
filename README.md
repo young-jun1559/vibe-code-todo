@@ -23,8 +23,9 @@ Firebase Realtime Database를 활용한 실시간 동기화 할일 관리 애플
 ## 🛠️ 기술 스택
 
 - **Frontend**: HTML, CSS, JavaScript (ES6+)
-- **Backend**: Firebase Realtime Database
-- **호스팅**: 정적 웹 호스팅 (GitHub Pages, Netlify 등)
+- **Backend**: REST API (Node.js/Express)
+- **API**: localhost:5000
+- **호스팅**: Vercel
 
 ## 📦 파일 구조
 
@@ -48,37 +49,36 @@ git clone https://github.com/young-jun1559/vibe-code-todo.git
 cd vibe-code-todo
 ```
 
-### 2. Firebase 설정
+### 2. 백엔드 서버 실행
 
-1. [Firebase Console](https://console.firebase.google.com/) 접속
-2. 프로젝트 생성 또는 선택
-3. **Realtime Database** 생성
-4. 보안 규칙 설정 (테스트 모드):
+백엔드 API 서버가 필요합니다:
 
-```json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
+```bash
+# 백엔드 프로젝트로 이동
+cd your-backend-project
+
+# 의존성 설치
+npm install
+
+# 서버 실행 (5000번 포트)
+npm start
 ```
 
-5. `app.js`의 Firebase 설정 정보 업데이트:
+**필수 요구사항:**
+- 백엔드 서버가 `localhost:5000`에서 실행
+- CORS 설정 필요
+- API 엔드포인트: `/api/todos`
 
+**백엔드 라우터 설정:**
 ```javascript
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.firebasestorage.app",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    databaseURL: "YOUR_DATABASE_URL"
-};
+// GET /api/todos - 모든 할일 조회
+// POST /api/todos - 할일 추가
+// PUT /api/todos/:id - 할일 수정
+// DELETE /api/todos/:id - 할일 삭제
+// GET /api/todos/stats - 통계 조회
 ```
 
-### 3. 로컬 서버 실행
+### 3. 프론트엔드 서버 실행
 
 #### Python 사용:
 ```bash
@@ -90,11 +90,19 @@ python -m http.server 8000
 npx http-server -p 8000
 ```
 
-### 4. 브라우저에서 열기
+### 4. API 연결 확인
 
+**테스트 페이지로 확인:**
 ```
-http://localhost:8000
+http://localhost:8000/test-backend.html
 ```
+
+**메인 앱:**
+```
+http://localhost:8000/index.html
+```
+
+⚠️ **중요:** 백엔드 서버(localhost:5000)가 먼저 실행되어야 합니다!
 
 ## 📱 사용 방법
 
