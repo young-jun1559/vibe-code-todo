@@ -1,8 +1,8 @@
 // 백엔드 API 설정
-const API_BASE_URL = 'http://localhost:5000/api/todos';
+const API_URL = 'http://localhost:5000/api/todos';
 
 console.log('✅ 백엔드 API 연결 준비 완료!');
-console.log('📡 API URL:', API_BASE_URL);
+console.log('📡 API URL:', API_URL);
 
 // DOM 요소 선택
 const todoInput = document.getElementById('todoInput');
@@ -23,9 +23,6 @@ let editingId = null;
 async function init() {
     attachEventListeners();
     await loadTodos();
-    
-    // 5초마다 자동 새로고침 (선택사항)
-    // setInterval(loadTodos, 5000);
 }
 
 // 이벤트 리스너 등록
@@ -51,25 +48,30 @@ function attachEventListeners() {
     });
 }
 
-// 모든 할일 불러오기 (GET /api/todos)
+// 할일 목록 불러오기 (GET /api/todos)
 async function loadTodos() {
     try {
         console.log('📥 할일 목록 불러오는 중...');
         
-        const response = await fetch(API_BASE_URL);
+        const response = await fetch(API_URL);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
-        todos = data;
+        const result = await response.json();
         
-        console.log(`✅ ${todos.length}개의 할일 로드 완료`);
-        console.log('데이터:', todos);
+        console.log('✅ API 응답:', result);
         
-        renderTodos();
-        await updateStats(); // 통계 별도 API 호출
+        if (result.success && Array.isArray(result.data)) {
+            todos = result.data;
+            console.log(`📋 ${result.count}개의 할일 로드됨`);
+            renderTodos();
+            updateStats();
+        } else {
+            console.error('❌ 데이터 형식 오류:', result);
+            alert('데이터 형식이 올바르지 않습니다.');
+        }
         
     } catch (error) {
         console.error('❌ 할일 불러오기 오류:', error);
@@ -91,14 +93,14 @@ async function addTodo() {
     try {
         console.log('➕ 할일 추가 시도:', text);
         
-        const response = await fetch(API_BASE_URL, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                text: text,
-                completed: false
+                title: text,  // text → title로 변경
+                priority: 'medium'  // 기본 우선순위
             })
         });
         
@@ -106,15 +108,21 @@ async function addTodo() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const newTodo = await response.json();
-        console.log('✅ 할일 추가 성공!', newTodo);
+        const result = await response.json();
         
-        // 입력창 초기화
-        todoInput.value = '';
-        todoInput.focus();
-        
-        // 목록 다시 불러오기
-        await loadTodos();
+        if (result.success) {
+            console.log('✅ 할일 생성:', result.data);
+            
+            // 입력창 초기화
+            todoInput.value = '';
+            todoInput.focus();
+            
+            // 목록 다시 불러오기
+            await loadTodos();
+        } else {
+            console.error('❌ 생성 실패:', result.message);
+            alert('할일 추가에 실패했습니다: ' + result.message);
+        }
         
     } catch (error) {
         console.error('❌ 할일 추가 오류:', error);
@@ -128,7 +136,7 @@ async function deleteTodo(id) {
         try {
             console.log('🗑️ 삭제 시도:', id);
             
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const response = await fetch(`${API_URL}/${id}`, {
                 method: 'DELETE'
             });
             
@@ -136,10 +144,17 @@ async function deleteTodo(id) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            console.log('✅ 삭제 성공');
+            const result = await response.json();
             
-            // 목록 다시 불러오기
-            await loadTodos();
+            if (result.success) {
+                console.log('✅ 할일 삭제:', result.data);
+                
+                // 목록 다시 불러오기
+                await loadTodos();
+            } else {
+                console.error('❌ 삭제 실패:', result.message);
+                alert('할일 삭제에 실패했습니다: ' + result.message);
+            }
             
         } catch (error) {
             console.error('❌ 할일 삭제 오류:', error);
@@ -155,7 +170,7 @@ async function toggleComplete(id) {
         try {
             console.log('🔄 완료 상태 변경:', id);
             
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const response = await fetch(`${API_URL}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -169,10 +184,16 @@ async function toggleComplete(id) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            console.log('✅ 완료 상태 변경 성공');
+            const result = await response.json();
             
-            // 목록 다시 불러오기
-            await loadTodos();
+            if (result.success) {
+                console.log('✅ 완료 상태 변경 성공');
+                
+                // 목록 다시 불러오기
+                await loadTodos();
+            } else {
+                console.error('❌ 완료 상태 변경 실패:', result.message);
+            }
             
         } catch (error) {
             console.error('❌ 완료 상태 업데이트 오류:', error);
@@ -201,13 +222,13 @@ async function saveEdit(id) {
     try {
         console.log('✏️ 할일 수정:', id);
         
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetch(`${API_URL}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                text: newText
+                title: newText  // text → title로 변경
             })
         });
         
@@ -215,11 +236,18 @@ async function saveEdit(id) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        console.log('✅ 수정 성공');
-        editingId = null;
+        const result = await response.json();
         
-        // 목록 다시 불러오기
-        await loadTodos();
+        if (result.success) {
+            console.log('✅ 수정 성공');
+            editingId = null;
+            
+            // 목록 다시 불러오기
+            await loadTodos();
+        } else {
+            console.error('❌ 수정 실패:', result.message);
+            alert('할일 수정에 실패했습니다: ' + result.message);
+        }
         
     } catch (error) {
         console.error('❌ 할일 수정 오류:', error);
@@ -243,6 +271,8 @@ function renderTodos() {
     } else if (currentFilter === 'completed') {
         filteredTodos = todos.filter(todo => todo.completed);
     }
+    
+    console.log('렌더링할 할일:', filteredTodos);
     
     // 목록 비우기
     todoList.innerHTML = '';
@@ -268,7 +298,7 @@ function renderTodos() {
                     type="text" 
                     class="todo-edit-input" 
                     id="edit-input-${todo.id}"
-                    value="${escapeHtml(todo.text)}"
+                    value="${escapeHtml(todo.title || todo.text || '')}"
                     autofocus
                 >
                 <div class="todo-actions">
@@ -305,6 +335,10 @@ function renderTodos() {
         } 
         // 일반 표시 모드
         else {
+            // priority가 있으면 표시
+            const priorityBadge = todo.priority ? 
+                `<span class="priority ${todo.priority}">${todo.priority}</span>` : '';
+            
             li.innerHTML = `
                 <input 
                     type="checkbox" 
@@ -312,7 +346,8 @@ function renderTodos() {
                     ${todo.completed ? 'checked' : ''}
                     data-id="${todo.id}"
                 >
-                <span class="todo-text">${escapeHtml(todo.text)}</span>
+                <span class="todo-text">${escapeHtml(todo.title || todo.text || '')}</span>
+                ${priorityBadge}
                 <div class="todo-actions">
                     <button class="todo-btn btn-edit" data-id="${todo.id}">수정</button>
                     <button class="todo-btn btn-delete" data-id="${todo.id}">삭제</button>
@@ -341,34 +376,17 @@ function renderTodos() {
     });
 }
 
-// 통계 업데이트 함수 (GET /api/todos/stats)
-async function updateStats() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/stats`);
-        
-        if (!response.ok) {
-            // stats API가 없으면 클라이언트에서 계산
-            throw new Error('Stats API not available');
-        }
-        
-        const stats = await response.json();
-        
-        totalCount.textContent = stats.total || 0;
-        activeCount.textContent = stats.active || 0;
-        completedCount.textContent = stats.completed || 0;
-        
-    } catch (error) {
-        // stats API가 없으면 클라이언트에서 계산
-        console.log('ℹ️ Stats API 없음, 클라이언트에서 계산');
-        
-        const total = todos.length;
-        const active = todos.filter(todo => !todo.completed).length;
-        const completed = todos.filter(todo => todo.completed).length;
-        
-        totalCount.textContent = total;
-        activeCount.textContent = active;
-        completedCount.textContent = completed;
-    }
+// 통계 업데이트 함수
+function updateStats() {
+    const total = todos.length;
+    const active = todos.filter(todo => !todo.completed).length;
+    const completed = todos.filter(todo => todo.completed).length;
+    
+    totalCount.textContent = total;
+    activeCount.textContent = active;
+    completedCount.textContent = completed;
+    
+    console.log(`📊 통계: 전체 ${total}, 진행중 ${active}, 완료 ${completed}`);
 }
 
 // HTML 이스케이프 함수 (XSS 방지)

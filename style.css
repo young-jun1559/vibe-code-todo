@@ -193,6 +193,31 @@ header h1 {
     color: #999;
 }
 
+/* 우선순위 배지 */
+.priority {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0 8px;
+}
+
+.priority.high {
+    background: #fee;
+    color: #c00;
+}
+
+.priority.medium {
+    background: #ffe;
+    color: #c90;
+}
+
+.priority.low {
+    background: #efe;
+    color: #0a0;
+}
+
 /* 수정 입력창 */
 .todo-edit-input {
     flex: 1;
